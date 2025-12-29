@@ -1,0 +1,42 @@
+{% extends "layout.html" %}
+{% block title %}Login - BiteMeBuddy{% endblock %}
+{% block body %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <h1 class="brand-title"><i class="fas fa-utensils me-2"></i>BiteMeBuddy</h1>
+            <p class="text-muted">Food Delivery Service</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('login') }}">
+            <div class="mb-3">
+                <label for="mobile" class="form-label">Mobile Number</label>
+                <input type="tel" class="form-control" id="mobile" name="mobile" 
+                       pattern="[0-9]{10,15}" required placeholder="Enter 10-15 digit mobile number">
+            </div>
+            
+            <div class="mb-4">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 btn-lg">Login</button>
+        </form>
+        
+        <div class="text-center mt-4">
+            <p class="mb-0">New to BiteMeBuddy? <a href="{{ url_for('register') }}" class="text-decoration-none">Register here</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
