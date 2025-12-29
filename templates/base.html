@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BiteMeBuddy - {% block title %}Food Delivery{% endblock %}</title>
+    
+    <!-- Font Awesome -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    
+    {% block extra_css %}{% endblock %}
+</head>
+<body>
+    <!-- Top Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="{{ url_for('dashboard') if session.user_id else url_for('home') }}" class="logo">
+                <i class="fas fa-utensils"></i>
+                <span>BiteMeBuddy</span>
+            </a>
+            
+            {% if session.user_id %}
+            <div class="header-right">
+                {% if unread_count and unread_count > 0 %}
+                <a href="{{ url_for('messages') }}" class="inbox-btn">
+                    <i class="fas fa-inbox"></i>
+                    <span class="badge">{{ unread_count }}</span>
+                </a>
+                {% endif %}
+                
+                <div class="user-menu">
+                    <img src="{{ session.profile_pic }}" alt="Profile" class="user-dp">
+                    <span class="user-name">{{ session.user_name }}</span>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </header>
+
+    <!-- Flash Messages -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <div class="flash-container">
+            {% for category, message in messages %}
+            <div class="flash flash-{{ category }}">
+                {{ message }}
+                <button class="flash-close">&times;</button>
+            </div>
+            {% endfor %}
+        </div>
+        {% endif %}
+    {% endwith %}
+
+    <!-- Main Content -->
+    <main class="main-content">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- Bottom Navigation -->
+    {% if session.user_id %}
+    <nav class="bottom-nav">
+        <a href="{{ url_for('dashboard') }}" class="nav-item {% if request.endpoint == 'dashboard' %}active{% endif %}">
+            <i class="fas fa-home"></i>
+            <span>Home</span>
+        </a>
+        
+        <a href="#menu-section" class="nav-item">
+            <i class="fas fa-list-alt"></i>
+            <span>Menu</span>
+        </a>
+        
+        <a href="{{ url_for('view_cart') }}" class="nav-item cart-nav">
+            <i class="fas fa-shopping-cart"></i>
+            <span>Cart</span>
+            {% if cart_count and cart_count > 0 %}
+            <span class="nav-badge">{{ cart_count }}</span>
+            {% endif %}
+        </a>
+        
+        <a href="{{ url_for('order_history') }}" class="nav-item">
+            <i class="fas fa-history"></i>
+            <span>Orders</span>
+        </a>
+        
+        <a href="{{ url_for('profile') }}" class="nav-item">
+            <i class="fas fa-user"></i>
+            <span>Profile</span>
+        </a>
+    </nav>
+    {% endif %}
+
+    <!-- Scripts -->
+    <script src="{{ url_for('static', filename='js/main.js') }}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+                          </html>
