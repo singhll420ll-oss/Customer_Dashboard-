@@ -1,0 +1,82 @@
+<div class="profile-section">
+    <h3 class="section-title mb-4">Your Profile</h3>
+    
+    {% if user %}
+    <div class="row">
+        <div class="col-lg-4">
+            <div class="card profile-card">
+                <div class="card-body text-center">
+                    <img src="{{ url_for('static', filename='images/' + user.profile_pic_url) if user.profile_pic_url == 'default.jpg' else user.profile_pic_url }}" 
+                         class="rounded-circle mb-3" width="150" height="150" 
+                         alt="{{ user.full_name }}" 
+                         onerror="this.src='{{ url_for('static', filename='images/default-avatar.png') }}'">
+                    <h4 class="card-title">{{ user.full_name }}</h4>
+                    <p class="text-muted mb-0">{{ user.mobile }}</p>
+                    {% if user.email %}
+                    <p class="text-muted">{{ user.email }}</p>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        
+        <div class="col-lg-8">
+            <div class="card">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Account Information</h5>
+                    
+                    <table class="table">
+                        <tbody>
+                            <tr>
+                                <th scope="row">Full Name</th>
+                                <td>{{ user.full_name }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Mobile Number</th>
+                                <td>{{ user.mobile }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Email Address</th>
+                                <td>{{ user.email or 'Not provided' }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Location</th>
+                                <td>
+                                    {% if user.location_lat and user.location_lng %}
+                                    Lat: {{ "%.6f"|format(user.location_lat) }}, 
+                                    Lng: {{ "%.6f"|format(user.location_lng) }}
+                                    {% else %}
+                                    Not set
+                                    {% endif %}
+                                </td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Registered Since</th>
+                                <td>{{ user.registered_at.strftime('%d %b %Y') }}</td>
+                            </tr>
+                            <tr>
+                                <th scope="row">Account Status</th>
+                                <td><span class="badge bg-success">Active</span></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    
+                    <div class="mt-4">
+                        <button class="btn btn-outline-primary" disabled>
+                            <i class="fas fa-edit me-2"></i> Edit Profile (Coming Soon)
+                        </button>
+                        <a href="{{ url_for('logout') }}" class="btn btn-outline-danger float-end">
+                            <i class="fas fa-sign-out-alt me-2"></i> Logout
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5 empty-state">
+        <i class="fas fa-user-circle fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Profile not found</h5>
+        <p class="text-muted">Unable to load profile information</p>
+    </div>
+    {% endif %}
+</div>
