@@ -1,0 +1,67 @@
+<div class="menu-section">
+    <h3 class="section-title mb-4">Menu Items</h3>
+    
+    {% if menu_items %}
+    <div class="row row-cols-1 row-cols-md-3 g-4">
+        {% for item in menu_items %}
+        <div class="col">
+            <div class="card menu-card h-100">
+                <img src="{{ item.image_url or url_for('static', filename='images/default-food.jpg') }}" 
+                     class="card-img-top" alt="{{ item.item_name }}" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">{{ item.item_name }}</h5>
+                    <p class="card-text text-muted small">
+                        {{ item.description[:80] }}{% if item.description|length > 80 %}...{% endif %}
+                    </p>
+                    
+                    <div class="price-section mb-3">
+                        {% if item.discount > 0 %}
+                        <span class="text-decoration-line-through text-muted me-2">
+                            ₹{{ "%.2f"|format(item.base_price) }}
+                        </span>
+                        <span class="badge bg-danger">₹{{ "%.2f"|format(item.discount) }} OFF</span>
+                        {% endif %}
+                        <div class="final-price h5 text-primary mb-0">
+                            ₹{{ "%.2f"|format(item.final_price) }}
+                        </div>
+                    </div>
+                    
+                    <div class="text-muted small mb-3">
+                        Added: {{ item.added_at.strftime('%d %b %Y') }}
+                    </div>
+                    
+                    <button class="btn btn-primary w-100" 
+                            onclick="addToCart('menu', {{ item.menu_id }})">
+                        <i class="fas fa-cart-plus me-1"></i> Add to Cart
+                    </button>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        
+        <!-- Add More Placeholder -->
+        <div class="col">
+            <div class="card menu-card h-100 border-dashed">
+                <div class="card-body text-center d-flex flex-column justify-content-center align-items-center">
+                    <i class="fas fa-plus-circle fa-3x text-muted mb-3"></i>
+                    <h5 class="text-muted">Add More</h5>
+                    <p class="text-muted small">Coming soon</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5 empty-state">
+        <i class="fas fa-utensils fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Menu updating soon</h5>
+        <p class="text-muted">Our menu is currently being updated. Check back later!</p>
+    </div>
+    {% endif %}
+</div>
+
+<style>
+.border-dashed {
+    border: 2px dashed #dee2e6;
+    background-color: #f8f9fa;
+}
+  </style>
