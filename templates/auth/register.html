@@ -1,0 +1,121 @@
+{% extends "layout.html" %}
+{% block title %}Register - BiteMeBuddy{% endblock %}
+{% block body %}
+<div class="auth-container">
+    <div class="auth-card">
+        <div class="text-center mb-4">
+            <h1 class="brand-title"><i class="fas fa-utensils me-2"></i>BiteMeBuddy</h1>
+            <p class="text-muted">Create your account</p>
+        </div>
+        
+        {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+                {% for category, message in messages %}
+                    <div class="alert alert-{{ 'danger' if category == 'error' else 'success' }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                {% endfor %}
+            {% endif %}
+        {% endwith %}
+        
+        <form method="POST" action="{{ url_for('register') }}" enctype="multipart/form-data">
+            <!-- Profile Picture -->
+            <div class="text-center mb-4">
+                <div class="profile-pic-upload">
+                    <img id="profilePreview" src="{{ url_for('static', filename='images/default-avatar.png') }}" 
+                         class="rounded-circle" width="100" height="100">
+                    <input type="file" class="form-control d-none" id="profile_pic" name="profile_pic" 
+                           accept="image/*" onchange="previewImage(this)">
+                    <label for="profile_pic" class="btn btn-sm btn-outline-primary mt-2">
+                        <i class="fas fa-camera me-1"></i> Upload Photo
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Full Name -->
+            <div class="mb-3">
+                <label for="full_name" class="form-label">Full Name</label>
+                <input type="text" class="form-control" id="full_name" name="full_name" required>
+            </div>
+            
+            <!-- Mobile Number -->
+            <div class="mb-3">
+                <label for="mobile" class="form-label">Mobile Number</label>
+                <input type="tel" class="form-control" id="mobile" name="mobile" 
+                       pattern="[0-9]{10,15}" required>
+            </div>
+            
+            <!-- Email -->
+            <div class="mb-3">
+                <label for="email" class="form-label">Email (Optional)</label>
+                <input type="email" class="form-control" id="email" name="email">
+            </div>
+            
+            <!-- Password -->
+            <div class="mb-3">
+                <label for="password" class="form-label">Password</label>
+                <input type="password" class="form-control" id="password" name="password" required>
+            </div>
+            
+            <!-- Confirm Password -->
+            <div class="mb-3">
+                <label for="confirm_password" class="form-label">Confirm Password</label>
+                <input type="password" class="form-control" id="confirm_password" name="confirm_password" required>
+            </div>
+            
+            <!-- Location -->
+            <div class="mb-4">
+                <label class="form-label">Location</label>
+                <div class="input-group">
+                    <input type="text" class="form-control" id="location_display" 
+                           placeholder="Click to get your location" readonly>
+                    <button type="button" class="btn btn-outline-primary" onclick="getLocation()">
+                        <i class="fas fa-location-crosshairs"></i> Use Current Location
+                    </button>
+                </div>
+                <input type="hidden" id="lat" name="lat">
+                <input type="hidden" id="lng" name="lng">
+                <small class="text-muted">We need your location for accurate delivery</small>
+            </div>
+            
+            <button type="submit" class="btn btn-primary w-100 btn-lg">Register</button>
+        </form>
+        
+        <div class="text-center mt-3">
+            <p class="mb-0">Already have an account? <a href="{{ url_for('login') }}" class="text-decoration-none">Login here</a></p>
+        </div>
+    </div>
+</div>
+
+<script>
+function previewImage(input) {
+    if (input.files && input.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            document.getElementById('profilePreview').src = e.target.result;
+        }
+        reader.readAsDataURL(input.files[0]);
+    }
+}
+
+function getLocation() {
+    if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(
+            function(position) {
+                const lat = position.coords.latitude;
+                const lng = position.coords.longitude;
+                document.getElementById('lat').value = lat;
+                document.getElementById('lng').value = lng;
+                document.getElementById('location_display').value = `Lat: ${lat.toFixed(6)}, Lng: ${lng.toFixed(6)}`;
+            },
+            function(error) {
+                alert('Unable to get location. Please enable location services.');
+            }
+        );
+    } else {
+        alert('Geolocation is not supported by this browser.');
+    }
+}
+</script>
+{% endblock %}
