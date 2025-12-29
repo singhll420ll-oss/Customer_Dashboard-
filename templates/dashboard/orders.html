@@ -1,0 +1,140 @@
+<div class="orders-section">
+    <h3 class="section-title mb-4">Your Orders</h3>
+    
+    <ul class="nav nav-tabs mb-4" id="ordersTab" role="tablist">
+        <li class="nav-item" role="presentation">
+            <button class="nav-link active" id="current-tab" data-bs-toggle="tab" 
+                    data-bs-target="#current" type="button">Current Orders</button>
+        </li>
+        <li class="nav-item" role="presentation">
+            <button class="nav-link" id="past-tab" data-bs-toggle="tab" 
+                    data-bs-target="#past" type="button">Past Orders</button>
+        </li>
+    </ul>
+    
+    <div class="tab-content" id="ordersTabContent">
+        <!-- Current Orders -->
+        <div class="tab-pane fade show active" id="current" role="tabpanel">
+            {% if current_orders %}
+                {% for order in current_orders %}
+                <div class="card order-card mb-3">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Order #{{ order.order_id }}</strong>
+                                <span class="text-muted ms-2">{{ order.order_date.strftime('%d %b %Y, %H:%M') }}</span>
+                            </div>
+                            <span class="badge bg-{{ 
+                                'warning' if order.status == 'pending' 
+                                else 'info' if order.status == 'preparing' 
+                                else 'primary' if order.status == 'delivery'
+                                else 'secondary'
+                            }}">
+                                {{ order.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if items_by_order[order.order_id] %}
+                        <div class="order-items mb-3">
+                            {% for item in items_by_order[order.order_id] %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <span>{{ item.service_name or item.menu_item_name }}</span>
+                                    <small class="text-muted ms-2">× {{ item.quantity }}</small>
+                                </div>
+                                <span>₹{{ "%.2f"|format(item.price_at_time * item.quantity) }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">Payment: {{ order.payment_method|title }} 
+                                ({{ order.payment_status }})</small>
+                            </div>
+                            <div class="h5 mb-0">₹{{ "%.2f"|format(order.total_amount) }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="text-center py-5 empty-state">
+                <i class="fas fa-clock fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No current orders</h5>
+                <p class="text-muted">Your current orders will appear here</p>
+            </div>
+            {% endif %}
+        </div>
+        
+        <!-- Past Orders -->
+        <div class="tab-pane fade" id="past" role="tabpanel">
+            {% if past_orders %}
+                {% for order in past_orders %}
+                <div class="card order-card mb-3">
+                    <div class="card-header bg-light">
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <strong>Order #{{ order.order_id }}</strong>
+                                <span class="text-muted ms-2">{{ order.order_date.strftime('%d %b %Y, %H:%M') }}</span>
+                            </div>
+                            <span class="badge bg-{{ 
+                                'success' if order.status == 'delivered' 
+                                else 'danger' if order.status == 'cancelled'
+                                else 'secondary'
+                            }}">
+                                {{ order.status|title }}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="card-body">
+                        {% if items_by_order[order.order_id] %}
+                        <div class="order-items mb-3">
+                            {% for item in items_by_order[order.order_id] %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <div>
+                                    <span>{{ item.service_name or item.menu_item_name }}</span>
+                                    <small class="text-muted ms-2">× {{ item.quantity }}</small>
+                                </div>
+                                <span>₹{{ "%.2f"|format(item.price_at_time * item.quantity) }}</span>
+                            </div>
+                            {% endfor %}
+                        </div>
+                        {% endif %}
+                        
+                        <div class="d-flex justify-content-between align-items-center">
+                            <div>
+                                <small class="text-muted">
+                                    Delivered to: {{ "%.6f"|format(order.delivery_lat) }}, {{ "%.6f"|format(order.delivery_lng) }}
+                                </small>
+                            </div>
+                            <div class="h5 mb-0">₹{{ "%.2f"|format(order.total_amount) }}</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% else %}
+            <div class="text-center py-5 empty-state">
+                <i class="fas fa-history fa-3x text-muted mb-3"></i>
+                <h5 class="text-muted">No past orders</h5>
+                <p class="text-muted">Your order history will appear here</p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<script>
+function initOrders() {
+    // Initialize Bootstrap tabs
+    const triggerTabList = [].slice.call(document.querySelectorAll('#ordersTab button'))
+    triggerTabList.forEach(function (triggerEl) {
+        const tabTrigger = new bootstrap.Tab(triggerEl)
+        triggerEl.addEventListener('click', function (event) {
+            event.preventDefault()
+            tabTrigger.show()
+        })
+    });
+}
+                          </script>
