@@ -1,0 +1,132 @@
+<div class="cart-section">
+    <h3 class="section-title mb-4">Your Cart</h3>
+    
+    {% if cart_items %}
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="cart-items">
+                {% for item in cart_items %}
+                <div class="card mb-3 cart-item">
+                    <div class="card-body">
+                        <div class="row align-items-center">
+                            <div class="col-md-2">
+                                <img src="{{ item.service_image or item.menu_image or url_for('static', filename='images/default-food.jpg') }}" 
+                                     class="img-fluid rounded" alt="{{ item.service_name or item.menu_item_name }}">
+                            </div>
+                            <div class="col-md-6">
+                                <h6 class="mb-1">{{ item.service_name or item.menu_item_name }}</h6>
+                                <p class="text-muted small mb-2">
+                                    {% if item.item_type == 'service' %}
+                                        Service Item
+                                    {% else %}
+                                        Menu Item
+                                    {% endif %}
+                                </p>
+                                <div class="price">
+                                    {% if item.item_type == 'service' %}
+                                        ₹{{ "%.2f"|format(item.service_price|float - item.service_discount|float) }}
+                                    {% else %}
+                                        ₹{{ "%.2f"|format(item.menu_price|float - item.menu_discount|float) }}
+                                    {% endif %}
+                                </div>
+                            </div>
+                            <div class="col-md-3">
+                                <div class="quantity-control">
+                                    <button class="btn btn-sm btn-outline-secondary" 
+                                            onclick="updateCart({{ item.cart_id }}, 'decrease')">
+                                        <i class="fas fa-minus"></i>
+                                    </button>
+                                    <span class="mx-2">{{ item.quantity }}</span>
+                                    <button class="btn btn-sm btn-outline-secondary" 
+                                            onclick="updateCart({{ item.cart_id }}, 'increase')">
+                                        <i class="fas fa-plus"></i>
+                                    </button>
+                                </div>
+                            </div>
+                            <div class="col-md-1 text-end">
+                                <button class="btn btn-link text-danger" 
+                                        onclick="updateCart({{ item.cart_id }}, 'remove')">
+                                    <i class="fas fa-trash"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="card checkout-summary">
+                <div class="card-body">
+                    <h5 class="card-title mb-3">Order Summary</h5>
+                    
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Subtotal</span>
+                            <span>₹{{ "%.2f"|format(subtotal) }}</span>
+                        </div>
+                        <div class="d-flex justify-content-between mb-2">
+                            <span>Delivery Charge</span>
+                            <span>Free</span>
+                        </div>
+                        <hr>
+                        <div class="d-flex justify-content-between h5">
+                            <strong>Total</strong>
+                            <strong>₹{{ "%.2f"|format(subtotal) }}</strong>
+                        </div>
+                    </div>
+                    
+                    <button class="btn btn-primary w-100 btn-lg" onclick="openCheckoutModal()">
+                        <i class="fas fa-shopping-bag me-2"></i> Confirm Order
+                    </button>
+                    
+                    <div class="text-center mt-3">
+                        <a href="/services" class="text-decoration-none">
+                            <i class="fas fa-plus me-1"></i> Add More Items
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% else %}
+    <div class="text-center py-5 empty-state">
+        <i class="fas fa-shopping-cart fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Your cart is empty</h5>
+        <p class="text-muted">Add items from Services or Menu to get started</p>
+        <button class="btn btn-primary mt-2" onclick="loadSection('services')">
+            <i class="fas fa-concierge-bell me-1"></i> Browse Services
+        </button>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function updateCart(cartId, action) {
+    fetch(`/update-cart/${cartId}`, {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({ action: action })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            loadSection('cart'); // Reload cart section
+        } else {
+            alert('Failed to update cart');
+        }
+    })
+    .catch(error => {
+        alert('Error updating cart');
+    });
+}
+
+function openCheckoutModal() {
+    $('#checkoutModal').modal('show');
+}
+
+function initCart() {
+    // Cart-specific initialization
+}
+                      </script>
