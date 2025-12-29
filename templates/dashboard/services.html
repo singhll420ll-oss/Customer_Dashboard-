@@ -1,0 +1,155 @@
+<div class="services-section">
+    <h3 class="section-title mb-4">Available Services</h3>
+    
+    {% if services %}
+    <div class="row row-cols-1 row-cols-md-2 g-4">
+        {% for service in services %}
+        <div class="col">
+            <div class="card service-card h-100">
+                <div class="row g-0">
+                    <div class="col-md-4">
+                        <img src="{{ service.image_url or url_for('static', filename='images/default-food.jpg') }}" 
+                             class="img-fluid rounded-start" alt="{{ service.service_name }}">
+                    </div>
+                    <div class="col-md-8">
+                        <div class="card-body">
+                            <h5 class="card-title">{{ service.service_name }}</h5>
+                            <p class="card-text text-muted small">
+                                {{ service.description[:100] }}{% if service.description|length > 100 %}...{% endif %}
+                            </p>
+                            
+                            <div class="price-section mb-2">
+                                {% if service.discount > 0 %}
+                                <span class="text-decoration-line-through text-muted me-2">
+                                    ₹{{ "%.2f"|format(service.base_price) }}
+                                </span>
+                                <span class="badge bg-danger">₹{{ "%.2f"|format(service.discount) }} OFF</span>
+                                {% endif %}
+                                <div class="final-price h5 text-primary mb-0">
+                                    ₹{{ "%.2f"|format(service.final_price) }}
+                                </div>
+                            </div>
+                            
+                            <div class="service-meta small text-muted mb-3">
+                                <div>Added: {{ service.added_at.strftime('%d %b %Y') }}</div>
+                                {% if service.available_until %}
+                                <div>Available until: {{ service.available_until.strftime('%d %b %Y %H:%M') }}</div>
+                                {% endif %}
+                            </div>
+                            
+                            <div class="d-flex justify-content-between">
+                                <button class="btn btn-outline-primary btn-sm" 
+                                        onclick="viewServiceDetails({{ service.service_id }})">
+                                    <i class="fas fa-eye me-1"></i> View Details
+                                </button>
+                                <button class="btn btn-primary btn-sm" 
+                                        onclick="addToCart('service', {{ service.service_id }})">
+                                    <i class="fas fa-cart-plus me-1"></i> Add to Cart
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+    {% else %}
+    <div class="text-center py-5 empty-state">
+        <i class="fas fa-concierge-bell fa-3x text-muted mb-3"></i>
+        <h5 class="text-muted">Not available at the moment</h5>
+        <p class="text-muted">Check back later for new services</p>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+function viewServiceDetails(serviceId) {
+    fetch(`/service/${serviceId}`)
+        .then(response => response.json())
+        .then(data => {
+            if (data.service) {
+                const service = data.service;
+                const modalContent = `
+                    <div class="text-center mb-4">
+                        <img src="${service.image_url || '/static/images/default-food.jpg'}" 
+                             class="img-fluid rounded" style="max-height: 200px;">
+                    </div>
+                    <h4>${service.service_name}</h4>
+                    <p>${service.description}</p>
+                    
+                    <div class="price-display mb-4">
+                        <div class="h3 text-primary">₹${service.final_price.toFixed(2)}</div>
+                        ${service.discount > 0 ? `
+                            <div>
+                                <span class="text-decoration-line-through text-muted">
+                                    ₹${service.base_price}
+                                </span>
+                                <span class="badge bg-success ms-2">
+                                    Save ₹${service.discount}
+                                </span>
+                            </div>
+                        ` : ''}
+                    </div>
+                    
+                    ${service.items && service.items.length > 0 ? `
+                        <h5>Includes:</h5>
+                        <div class="row">
+                            ${service.items.map(item => `
+                                <div class="col-md-6 mb-3">
+                                    <div class="card">
+                                        <div class="card-body">
+                                            <h6 class="card-title">${item.item_name}</h6>
+                                            ${item.item_description ? `<p class="small text-muted">${item.item_description}</p>` : ''}
+                                            ${item.item_price ? `<p class="mb-0">₹${item.item_price}</p>` : ''}
+                                        </div>
+                                    </div>
+                                </div>
+                            `).join('')}
+                        </div>
+                    ` : ''}
+                    
+                    <div class="mt-4">
+                        <button class="btn btn-primary w-100" 
+                                onclick="addToCart('service', ${service.service_id}); $('#serviceModal').modal('hide');">
+                            <i class="fas fa-cart-plus me-2"></i> Add to Cart
+                        </button>
+                    </div>
+                `;
+                
+                document.getElementById('serviceDetails').innerHTML = modalContent;
+                $('#serviceModal').modal('show');
+            }
+        });
+}
+
+function addToCart(type, id) {
+    fetch('/add-to-cart', {
+        method: 'POST',
+        headers: {'Content-Type': 'application/json'},
+        body: JSON.stringify({
+            type: type,
+            id: id,
+            quantity: 1
+        })
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (data.success) {
+            alert('Added to cart successfully!');
+            if (currentSection === 'cart') {
+                loadSection('cart');
+            }
+        } else {
+            alert('Failed to add to cart');
+        }
+    })
+    .catch(error => {
+        alert('Error adding to cart');
+    });
+}
+
+function initServices() {
+    // Any service-specific initialization
+}
+</script>
