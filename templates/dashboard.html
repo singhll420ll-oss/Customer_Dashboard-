@@ -1,0 +1,122 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block content %}
+<div class="dashboard">
+    <!-- Services Section -->
+    <section class="section">
+        <div class="section-header">
+            <h2><i class="fas fa-utensils"></i> Today's Services</h2>
+        </div>
+        
+        {% if services %}
+        <div class="services-grid">
+            {% for service in services %}
+            <div class="card service-card">
+                <div class="card-image">
+                    <img src="{{ service.image_url or '/static/images/default_food.jpg' }}" 
+                         alt="{{ service.name }}">
+                    {% if service.discount > 0 %}
+                    <span class="discount-badge">{{ service.discount }}% OFF</span>
+                    {% endif %}
+                </div>
+                
+                <div class="card-content">
+                    <h3 class="card-title">{{ service.name }}</h3>
+                    <p class="card-desc">{{ service.description|truncate(80) }}</p>
+                    
+                    <div class="price-section">
+                        {% if service.discount > 0 %}
+                        <span class="old-price">₹{{ "%.2f"|format(service.price) }}</span>
+                        {% endif %}
+                        <span class="current-price">₹{{ "%.2f"|format(service.final_price) }}</span>
+                    </div>
+                    
+                    <div class="card-meta">
+                        <span><i class="far fa-clock"></i> Added: {{ service.added_at.strftime('%d %b %I:%M %p') }}</span>
+                        <span><i class="far fa-calendar"></i> Till: {{ service.available_until.strftime('%d %b %I:%M %p') }}</span>
+                    </div>
+                    
+                    <div class="card-actions">
+                        <a href="{{ url_for('service_details', service_id=service.service_id) }}" 
+                           class="btn btn-outline">
+                            <i class="fas fa-eye"></i> View
+                        </a>
+                        
+                        <button class="btn btn-primary add-to-cart-btn"
+                                data-id="{{ service.service_id }}"
+                                data-type="service"
+                                data-name="{{ service.name }}">
+                            <i class="fas fa-cart-plus"></i> Add to Cart
+                        </button>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-utensils fa-3x"></i>
+            <h3>Not available at the moment</h3>
+            <p>No services available right now. Check back later.</p>
+        </div>
+        {% endif %}
+    </section>
+
+    <!-- Menu Section -->
+    <section id="menu-section" class="section">
+        <div class="section-header">
+            <h2><i class="fas fa-list-alt"></i> Menu Items</h2>
+        </div>
+        
+        {% if menus %}
+        <div class="menu-grid">
+            {% for menu in menus %}
+            <div class="card menu-card">
+                <div class="card-image">
+                    <img src="{{ menu.image_url or '/static/images/default_food.jpg' }}" 
+                         alt="{{ menu.name }}">
+                    {% if menu.discount > 0 %}
+                    <span class="discount-badge">{{ menu.discount }}% OFF</span>
+                    {% endif %}
+                </div>
+                
+                <div class="card-content">
+                    <h3 class="card-title">{{ menu.name }}</h3>
+                    <p class="card-desc">{{ menu.description|truncate(60) }}</p>
+                    
+                    <div class="price-section">
+                        {% if menu.discount > 0 %}
+                        <span class="old-price">₹{{ "%.2f"|format(menu.price) }}</span>
+                        {% endif %}
+                        <span class="current-price">₹{{ "%.2f"|format(menu.final_price) }}</span>
+                    </div>
+                    
+                    <div class="card-meta">
+                        <span><i class="far fa-clock"></i> Added: {{ menu.added_at.strftime('%d %b') }}</span>
+                        <span>#{{ menu.serial_number }}</span>
+                    </div>
+                    
+                    <button class="btn btn-primary add-to-cart-btn"
+                            data-id="{{ menu.menu_id }}"
+                            data-type="menu"
+                            data-name="{{ menu.name }}">
+                        <i class="fas fa-cart-plus"></i> Add to Cart
+                    </button>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+        {% else %}
+        <div class="empty-state">
+            <i class="fas fa-list-alt fa-3x"></i>
+            <h3>Not available at the moment</h3>
+            <p>No menu items available right now.</p>
+        </div>
+        {% endif %}
+    </section>
+</div>
+
+<script src="{{ url_for('static', filename='js/cart.js') }}"></script>
+{% endblock %}
